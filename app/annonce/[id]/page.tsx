@@ -1,33 +1,37 @@
-import { prisma } from "../../../src/lib/prisma"; // chemin relatif corrigé
-import { notFound } from "next/navigation";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { prisma } from "@/lib/prisma";
+import Image from "next/image";
 
-export default async function AnnoncePage({ params }: { params: { id: string } }) {
+export default async function AnnoncePage({ params }: any) {
   const annonce = await prisma.annonce.findUnique({
     where: { id: Number(params.id) },
   });
 
-  if (!annonce) return notFound();
+  if (!annonce) {
+    return <div>Annonce non trouvée</div>;
+  }
+
+  const formattedAnnonce = {
+    ...annonce,
+    date: annonce.date.toISOString(),
+  };
 
   return (
-    <main className="min-h-screen bg-[#FFF8E1] text-[#424242] font-righteous p-6 max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4">{annonce.titre}</h1>
-      <div className="flex items-center space-x-4 mb-4">
-        <img
-          src={annonce.image}
-          alt={annonce.utilisateur}
-          className="w-16 h-16 rounded-full object-cover"
-        />
-        <div>
-          <p className="text-lg">👤 {annonce.utilisateur}</p>
-          <p className="text-sm text-gray-600">📍 {annonce.localisation}</p>
-        </div>
-      </div>
-      <p className="mb-2">
-        📅 {new Date(annonce.date).toISOString().split("T")[0]} • ⏱ {annonce.duree}
-      </p>
-      <p className="mb-2">🛠 {annonce.categorie}</p>
-      <p className="text-green-600 font-semibold mb-4">💶 {annonce.prix} €</p>
-      <p className="bg-white p-4 rounded-xl shadow">{annonce.description}</p>
+    <main className="min-h-screen p-6 bg-[#FFC107] text-[#424242] font-righteous">
+      <h1 className="text-3xl font-bold mb-4">{formattedAnnonce.titre}</h1>
+      <p>Catégorie : {formattedAnnonce.categorie}</p>
+      <p>Durée estimée : {formattedAnnonce.duree}</p>
+      <p>Date : {new Date(formattedAnnonce.date).toLocaleDateString()}</p>
+      <p>Description : {formattedAnnonce.description}</p>
+      <p>Localisation : {formattedAnnonce.localisation}</p>
+      <p>Prix : {formattedAnnonce.prix} €</p>
+      <Image
+        src={formattedAnnonce.image}
+        alt={formattedAnnonce.titre}
+        width={400}
+        height={300}
+        className="mt-4 rounded-lg object-cover"
+      />
     </main>
   );
 }

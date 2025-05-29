@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image"; // ✅ Import du composant optimisé
 import { useState } from "react";
 
 interface Annonce {
@@ -93,8 +94,8 @@ export default function HomeClient({ annonces }: { annonces: Annonce[] }) {
             "Rangement",
             "Vide Maison",
             "Charges lourdes",
-            "Travaux d'extérieur",
-            "Travaux d'intérieur",
+            "Travaux d&rsquo;extérieur",
+            "Travaux d&rsquo;intérieur",
             "Cours particuliers",
             "Meubles",
             "Livraisons",
@@ -118,9 +119,11 @@ export default function HomeClient({ annonces }: { annonces: Annonce[] }) {
           annonces.map((annonce) => (
             <Link key={annonce.id} href={`/annonce/${annonce.id}`}>
               <div className="cursor-pointer bg-white p-4 rounded-xl shadow flex items-start space-x-4 border border-gray-200 hover:bg-gray-100 transition">
-                <img
+                <Image
                   src={annonce.image}
                   alt={annonce.utilisateur}
+                  width={64}
+                  height={64}
                   className="w-16 h-16 rounded-full object-cover"
                 />
                 <div className="flex-1">
