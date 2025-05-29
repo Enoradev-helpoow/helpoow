@@ -1,0 +1,49 @@
+Last login: Tue May 27 17:01:52 on ttys020
+
+The default interactive shell is now zsh.
+To update your account to use zsh, please run `chsh -s /bin/zsh`.
+For more details, please visit https://support.apple.com/kb/HT208050.
+MacBookdeGuaita:~ Enora$ cd ~/Desktop/HELPOOW
+MacBookdeGuaita:HELPOOW Enora$ ls -a
+.			.gitignore		package-lock.json
+..			helpoow			package.json
+.DS_Store		index.js		prisma
+.env			node_modules
+MacBookdeGuaita:HELPOOW Enora$ open -e .env
+MacBookdeGuaita:HELPOOW Enora$ open -e .env
+MacBookdeGuaita:HELPOOW Enora$ npx prisma generate
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.8.2) to ./node_modules/@prisma/client in 110ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
+
+MacBookdeGuaita:HELPOOW Enora$ npx prisma migrate dev --name init
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": SQLite database "dev.db" at "file:./prisma/dev.db"
+
+SQLite database dev.db created at file:./prisma/dev.db
+
+Applying migration `20250527150727_init`
+
+The following migration(s) have been created and applied from new schema changes:
+
+migrations/
+  └─ 20250527150727_init/
+    └─ migration.sql
+
+Your database is now in sync with your schema.
+
+✔ Generated Prisma Client (v6.8.2) to ./node_modules/@prisma/client in 106ms
+
+
+MacBookdeGuaita:HELPOOW Enora$ npx prisma studio
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Prisma Studio is up on http://localhost:5558
+Prisma schema loaded from prisma/schema.prisma
+

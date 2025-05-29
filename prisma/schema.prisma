@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Annonce {
+  id           Int      @id @default(autoincrement())
+  titre        String
+  description  String
+  date         DateTime
+  duree        String
+  utilisateur  String
+  image        String
+  prix         Int
+  localisation String
+  categorie    String
+  createdAt    DateTime @default(now())
+}
