@@ -16,6 +16,7 @@
     "@types/node": "22.15.23",
     "@types/react": "19.1.6",
     "autoprefixer": "^10.4.21",
+    "eslint": "^9.27.0",
     "postcss": "^8.5.3",
     "prisma": "^6.8.2",
     "tailwindcss": "^4.1.7"
