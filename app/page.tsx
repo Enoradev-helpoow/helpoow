@@ -1,5 +1,5 @@
 import { prisma } from "../src/lib/prisma";
-import { Annonce } from "@prisma/client";
+import type { Annonce } from "@prisma/client";
 import HomeClient from "./HomeClient";
 
 export default async function HomePage() {
