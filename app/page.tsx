@@ -14,3 +14,6 @@ export default async function HomePage() {
 
   return <HomeClient annonces={annonces} />;
 }
+if (!process.env.DATABASE_URL) {
+  console.error("❌ DATABASE_URL n'est pas défini !");
+}
