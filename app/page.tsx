@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import { prisma } from "../src/lib/prisma";
 import { Annonce } from '@prisma/client';
 import HomeClient from "./HomeClient";
