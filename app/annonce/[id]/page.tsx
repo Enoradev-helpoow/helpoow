@@ -1,3 +1,5 @@
+// app/annonces/[id]/page.tsx
+export const runtime = "nodejs";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { prisma } from "@/lib/prisma";
 import Image from "next/image";
