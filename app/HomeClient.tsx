@@ -1,21 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image"; // ✅ Import du composant optimisé
+import Image from "next/image";
 import { useState } from "react";
 
-interface Annonce {
+interface FormattedAnnonce {
   id: number;
   titre: string;
-  date: string;
+  description: string;
+  date: string; // 👈 Date au format string
   duree: string;
   utilisateur: string;
   image: string;
   prix: number;
   localisation: string;
+  categorie: string;
+  createdAt: string; // 👈 Date au format string
 }
 
-export default function HomeClient({ annonces }: { annonces: Annonce[] }) {
+export default function HomeClient({ annonces }: { annonces: FormattedAnnonce[] }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -94,8 +97,8 @@ export default function HomeClient({ annonces }: { annonces: Annonce[] }) {
             "Rangement",
             "Vide Maison",
             "Charges lourdes",
-            "Travaux d&rsquo;extérieur",
-            "Travaux d&rsquo;intérieur",
+            "Travaux d’extérieur",
+            "Travaux d’intérieur",
             "Cours particuliers",
             "Meubles",
             "Livraisons",
