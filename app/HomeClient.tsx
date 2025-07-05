@@ -45,13 +45,13 @@ export default function HomeClient({ annonces }: { annonces: FormattedAnnonce[] 
                   </Link>
                 </li>
                 <li>
-                  <Link href="/historique" className="block px-3 py-1.5 hover:bg-gray-100" onClick={closeMenu}>
-                    Historique
+                  <Link href="/historique-des-annonces" className="block px-3 py-1.5 hover:bg-gray-100" onClick={closeMenu}>
+                    Historique des annonces
                   </Link>
                 </li>
                 <li>
-                  <Link href="/mes-annonces" className="block px-3 py-1.5 hover:bg-gray-100" onClick={closeMenu}>
-                    Annonces
+                  <Link href="/deconnexion" className="block px-3 py-1.5 hover:bg-gray-100" onClick={closeMenu}>
+                    Déconnexion
                   </Link>
                 </li>
               </ul>

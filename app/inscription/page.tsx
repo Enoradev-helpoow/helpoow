@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function Inscription() {
-  const [step, setStep] = useState<"form" | "code">("form");
   const [form, setForm] = useState({
     nom: "",
     prenom: "",
@@ -12,155 +13,133 @@ export default function Inscription() {
     password: "",
     confirmPassword: "",
   });
-  const [photo, setPhoto] = useState<File | null>(null);
-  const [code, setCode] = useState("");
-  const [generatedCode, setGeneratedCode] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setPhoto(e.target.files[0]);
+  const handleInscription = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setMessage("");
+
+    // Validation simple
+    if (!form.nom || !form.prenom || !form.pseudo) {
+      setError("Tous les champs nom, prénom et pseudo sont obligatoires.");
+      return;
     }
-  };
+    if (form.password !== form.confirmPassword) {
+      setError("Les mots de passe ne correspondent pas.");
+      return;
+    }
 
-  const handleInscription = (e: React.FormEvent) => {
-    e.preventDefault();
+    setLoading(true);
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.email)) return setError("Email invalide");
-    if (form.password !== form.confirmPassword) return setError("Les mots de passe ne correspondent pas");
-    if (!form.nom || !form.prenom || !form.pseudo) return setError("Tous les champs sont obligatoires");
+    // Inscription via Supabase
+    const { data, error } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.password,
+    });
 
-    setError("");
-    const newCode = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedCode(newCode);
-    console.log("✉️ Code simulé envoyé :", newCode);
-    setStep("code");
-  };
+    setLoading(false);
 
-  const handleCodeVerification = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (code !== generatedCode) return setError("Code incorrect");
-    setError("");
-    alert(`✅ Compte créé pour ${form.prenom} ${form.nom} (${form.email})`);
-    // Tu pourras enregistrer tout ça en base plus tard
+    if (error) {
+      setError(error.message);
+    } else {
+      setMessage(
+        "Compte créé ! Un email de confirmation a été envoyé. Pense à vérifier ta boîte de réception."
+      );
+      // Optionnel : enregistrer nom, prénom, pseudo dans une table utilisateurs séparée
+      // Ou tu peux étendre la logique ici
+      // Pour l’instant on reste simple
+      // Puis rediriger après un délai, par exemple vers la connexion
+      setTimeout(() => router.push("/connexion"), 5000);
+    }
   };
 
   return (
     <main className="min-h-screen bg-[#FFC107] text-[#424242] font-righteous flex items-center justify-center">
-      <div className="bg-white p-8 rounded-2xl shadow max-w-lg w-full space-y-4">
-        <h2 className="text-2xl text-center">
-          {step === "form" ? "Créer un compte" : "Vérifie ton adresse e-mail"}
-        </h2>
+      <form
+        onSubmit={handleInscription}
+        className="bg-white p-8 rounded-2xl shadow max-w-lg w-full space-y-6"
+      >
+        <h2 className="text-2xl text-center">Créer un compte</h2>
 
-        {step === "form" ? (
-          <form onSubmit={handleInscription} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <input
-                name="prenom"
-                placeholder="Prénom"
-                value={form.prenom}
-                onChange={handleChange}
-                className="p-2 rounded bg-[#FFF3CD] outline-none"
-                required
-              />
-              <input
-                name="nom"
-                placeholder="Nom"
-                value={form.nom}
-                onChange={handleChange}
-                className="p-2 rounded bg-[#FFF3CD] outline-none"
-                required
-              />
-            </div>
+        <div className="grid grid-cols-2 gap-4">
+          <input
+            name="prenom"
+            placeholder="Prénom"
+            value={form.prenom}
+            onChange={handleChange}
+            className="p-2 rounded bg-[#FFF3CD] outline-none"
+            required
+          />
+          <input
+            name="nom"
+            placeholder="Nom"
+            value={form.nom}
+            onChange={handleChange}
+            className="p-2 rounded bg-[#FFF3CD] outline-none"
+            required
+          />
+        </div>
 
-            <input
-              name="pseudo"
-              placeholder="Pseudo"
-              value={form.pseudo}
-              onChange={handleChange}
-              className="w-full p-2 rounded bg-[#FFF3CD] outline-none"
-              required
-            />
+        <input
+          name="pseudo"
+          placeholder="Pseudo"
+          value={form.pseudo}
+          onChange={handleChange}
+          className="w-full p-2 rounded bg-[#FFF3CD] outline-none"
+          required
+        />
 
-            <input
-              name="email"
-              type="email"
-              placeholder="Adresse email"
-              value={form.email}
-              onChange={handleChange}
-              className="w-full p-2 rounded bg-[#FFF3CD] outline-none"
-              required
-            />
+        <input
+          name="email"
+          type="email"
+          placeholder="Adresse email"
+          value={form.email}
+          onChange={handleChange}
+          className="w-full p-2 rounded bg-[#FFF3CD] outline-none"
+          required
+        />
 
-            <input
-              name="password"
-              type="password"
-              placeholder="Mot de passe"
-              value={form.password}
-              onChange={handleChange}
-              className="w-full p-2 rounded bg-[#FFF3CD] outline-none"
-              required
-            />
+        <input
+          name="password"
+          type="password"
+          placeholder="Mot de passe"
+          value={form.password}
+          onChange={handleChange}
+          className="w-full p-2 rounded bg-[#FFF3CD] outline-none"
+          required
+        />
 
-            <input
-              name="confirmPassword"
-              type="password"
-              placeholder="Confirmer le mot de passe"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              className="w-full p-2 rounded bg-[#FFF3CD] outline-none"
-              required
-            />
+        <input
+          name="confirmPassword"
+          type="password"
+          placeholder="Confirmer le mot de passe"
+          value={form.confirmPassword}
+          onChange={handleChange}
+          className="w-full p-2 rounded bg-[#FFF3CD] outline-none"
+          required
+        />
 
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoChange}
-              className="w-full"
-            />
-            {photo && (
-              <p className="text-sm">📷 {photo.name}</p>
-            )}
+        {error && <p className="text-red-600 text-center">{error}</p>}
+        {message && <p className="text-green-600 text-center">{message}</p>}
 
-            {error && <p className="text-red-600 text-sm">{error}</p>}
-
-            <button
-              type="submit"
-              className="bg-[#424242] text-white px-4 py-2 rounded w-full hover:bg-[#333]"
-            >
-              Valider et envoyer le code
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleCodeVerification} className="space-y-4">
-            <p className="text-sm">
-              Un code à 6 chiffres a été envoyé à <strong>{form.email}</strong>
-              <br />
-              (⚠️ ici c’est simulé dans la console)
-            </p>
-            <input
-              type="text"
-              placeholder="Entrez le code"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              className="w-full p-2 rounded bg-[#FFF3CD] text-[#424242] outline-none"
-              required
-            />
-            {error && <p className="text-red-600 text-sm">{error}</p>}
-            <button
-              type="submit"
-              className="bg-[#424242] text-white px-4 py-2 rounded w-full hover:bg-[#333]"
-            >
-              Vérifier mon compte
-            </button>
-          </form>
-        )}
-      </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className={`w-full px-4 py-2 rounded text-white ${
+            loading ? "bg-gray-400" : "bg-[#424242] hover:bg-[#333]"
+          }`}
+        >
+          {loading ? "Création en cours..." : "Créer mon compte"}
+        </button>
+      </form>
     </main>
   );
 }

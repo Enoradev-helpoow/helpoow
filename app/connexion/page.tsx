@@ -2,14 +2,30 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function Connexion() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const router = useRouter();
 
-  const handleConnexion = (e: React.FormEvent) => {
+  const handleConnexion = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Connexion simulée avec : " + email);
+    setErrorMsg("");
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setErrorMsg(error.message);
+    } else {
+      // Connexion réussie → redirection vers la page d'accueil
+      router.push("/");
+    }
   };
 
   return (
@@ -35,7 +51,12 @@ export default function Connexion() {
           required
         />
 
-        <button type="submit" className="bg-[#424242] text-white px-4 py-2 rounded w-full hover:bg-[#333]">
+        {errorMsg && <p className="text-red-600 text-center">{errorMsg}</p>}
+
+        <button
+          type="submit"
+          className="bg-[#424242] text-white px-4 py-2 rounded w-full hover:bg-[#333]"
+        >
           Se connecter
         </button>
 
