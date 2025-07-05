@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { supabase } from "../src/lib/supabaseClient"; // adapte ce chemin si besoin, casse exacte
+import type { Session } from "@supabase/supabase-js";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
 
 interface FormattedAnnonce {
   id: number;
@@ -19,7 +21,31 @@ interface FormattedAnnonce {
 }
 
 export default function HomeClient({ annonces }: { annonces: FormattedAnnonce[] }) {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+      setLoading(false);
+    };
+
+    getUser();
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event: string, session: Session | null) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
@@ -40,17 +66,29 @@ export default function HomeClient({ annonces }: { annonces: FormattedAnnonce[] 
             >
               <ul className="py-1">
                 <li>
-                  <Link href="/mon-compte" className="block px-3 py-1.5 hover:bg-gray-100" onClick={closeMenu}>
+                  <Link
+                    href="/mon-compte"
+                    className="block px-3 py-1.5 hover:bg-gray-100"
+                    onClick={closeMenu}
+                  >
                     Compte
                   </Link>
                 </li>
                 <li>
-                  <Link href="/historique-des-annonces" className="block px-3 py-1.5 hover:bg-gray-100" onClick={closeMenu}>
+                  <Link
+                    href="/historique-des-annonces"
+                    className="block px-3 py-1.5 hover:bg-gray-100"
+                    onClick={closeMenu}
+                  >
                     Historique des annonces
                   </Link>
                 </li>
                 <li>
-                  <Link href="/deconnexion" className="block px-3 py-1.5 hover:bg-gray-100" onClick={closeMenu}>
+                  <Link
+                    href="/deconnexion"
+                    className="block px-3 py-1.5 hover:bg-gray-100"
+                    onClick={closeMenu}
+                  >
                     Déconnexion
                   </Link>
                 </li>
@@ -61,13 +99,23 @@ export default function HomeClient({ annonces }: { annonces: FormattedAnnonce[] 
         )}
 
         {/* Titre centré */}
-        <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl">Helpoow</h1>
+        <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl">
+          Helpoow
+        </h1>
 
         {/* Icônes de droite + Connexion */}
         <div className="flex items-center space-x-4 text-2xl">
-          <Link href="/connexion">
-            <span className="text-sm hover:underline">Connexion</span>
-          </Link>
+          {!loading ? (
+            user ? (
+              <span className="text-sm font-medium">
+                👋 {user.user_metadata?.prenom || user.email}
+              </span>
+            ) : (
+              <Link href="/connexion">
+                <span className="text-sm hover:underline">Connexion</span>
+              </Link>
+            )
+          ) : null}
           <span>👤</span>
           <span>💬</span>
         </div>
