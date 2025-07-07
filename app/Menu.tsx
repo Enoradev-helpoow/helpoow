@@ -1,14 +1,25 @@
-// Fichier : app/Menu.tsx
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { supabase } from "../src/lib/supabaseClient"; // adapte le chemin
 
 export default function Menu() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = useRouter();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (!error) {
+      router.push("/connexion");  // Redirige vers page de connexion après déconnexion
+    } else {
+      console.error("Erreur lors de la déconnexion:", error.message);
+    }
+  };
 
   return (
     <div className="text-2xl cursor-pointer relative" onClick={toggleMenu}>
@@ -25,14 +36,21 @@ export default function Menu() {
               </Link>
             </li>
             <li>
-              <Link href="/historique" className="block px-3 py-1.5 hover:bg-gray-100" onClick={closeMenu}>
-                Historique
+              <Link href="/historique-des-annonces" className="block px-3 py-1.5 hover:bg-gray-100" onClick={closeMenu}>
+                Historique des annonces
               </Link>
             </li>
             <li>
-              <Link href="/mes-annonces" className="block px-3 py-1.5 hover:bg-gray-100" onClick={closeMenu}>
-                Annonces
-              </Link>
+              {/* Déconnexion est un bouton car on veut exécuter une fonction */}
+              <button
+                onClick={() => {
+                  handleLogout();
+                  closeMenu();
+                }}
+                className="w-full text-left px-3 py-1.5 hover:bg-gray-100"
+              >
+                Déconnexion
+              </button>
             </li>
           </ul>
         </div>

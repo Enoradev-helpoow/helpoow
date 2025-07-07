@@ -1,7 +1,8 @@
 "use client";
 
+import Menu from "./Menu"; // adapte ce chemin si besoin
 import { useEffect, useState } from "react";
-import { supabase } from "../src/lib/supabaseClient"; // adapte ce chemin si besoin, casse exacte
+import { supabase } from "../src/lib/supabaseClient"; // adapte ce chemin si besoin
 import type { Session } from "@supabase/supabase-js";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,7 +24,6 @@ interface FormattedAnnonce {
 export default function HomeClient({ annonces }: { annonces: FormattedAnnonce[] }) {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
@@ -47,56 +47,11 @@ export default function HomeClient({ annonces }: { annonces: FormattedAnnonce[] 
     };
   }, []);
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const closeMenu = () => setIsMenuOpen(false);
-
   return (
     <main className="min-h-screen bg-[#FFC107] text-[#424242] font-righteous">
       <header className="flex justify-between items-center p-4 relative">
-        {/* Icône menu */}
-        <div className="text-2xl cursor-pointer" onClick={toggleMenu}>
-          ☰
-        </div>
-
-        {isMenuOpen && (
-          <>
-            <div
-              className="absolute left-0 top-full mt-1 w-40 bg-white rounded-md shadow-lg z-50 text-sm"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ul className="py-1">
-                <li>
-                  <Link
-                    href="/mon-compte"
-                    className="block px-3 py-1.5 hover:bg-gray-100"
-                    onClick={closeMenu}
-                  >
-                    Compte
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/historique-des-annonces"
-                    className="block px-3 py-1.5 hover:bg-gray-100"
-                    onClick={closeMenu}
-                  >
-                    Historique des annonces
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/deconnexion"
-                    className="block px-3 py-1.5 hover:bg-gray-100"
-                    onClick={closeMenu}
-                  >
-                    Déconnexion
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div className="fixed inset-0 z-40" onClick={closeMenu} />
-          </>
-        )}
+        {/* Remplacement de l'icône menu par le composant Menu */}
+        <Menu />
 
         {/* Titre centré */}
         <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl">
@@ -133,34 +88,41 @@ export default function HomeClient({ annonces }: { annonces: FormattedAnnonce[] 
         </div>
       </div>
 
-      {/* Catégories */}
-      <div className="overflow-x-auto mt-6 px-4">
-        <div className="flex space-x-4 w-max">
-          {[
-            "Électricité",
-            "Plomberie",
-            "Animaux",
-            "Jardinage",
-            "Nettoyage",
-            "Rangement",
-            "Vide Maison",
-            "Charges lourdes",
-            "Travaux d’extérieur",
-            "Travaux d’intérieur",
-            "Cours particuliers",
-            "Meubles",
-            "Livraisons",
-            "Déménagement",
-          ].map((categorie, index) => (
-            <div
-              key={index}
-              className="min-w-[160px] min-h-[60px] bg-[#424242] text-white flex items-center justify-center text-center p-4 rounded-2xl font-righteous shadow"
-            >
-              {categorie}
-            </div>
-          ))}
-        </div>
-      </div>
+{/* Catégories */}
+<div className="overflow-x-auto mt-6 px-4">
+  <div className="flex space-x-4 w-max">
+    {[
+      "Électricité",
+      "Plomberie",
+      "Animaux",
+      "Jardinage",
+      "Nettoyage",
+      "Rangement",
+      "Vide Maison",
+      "Charges lourdes",
+      "Travaux d’extérieur",
+      "Travaux d’intérieur",
+      "Cours particuliers",
+      "Meubles",
+      "Livraisons",
+      "Déménagement",
+    ].map((categorie, index) => {
+      const slug = categorie
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+      return (
+        <Link key={index} href={`/categories/${slug}`}>
+          <div className="min-w-[160px] min-h-[60px] bg-[#424242] text-white flex items-center justify-center text-center p-4 rounded-2xl font-righteous shadow hover:bg-[#333] transition cursor-pointer">
+            {categorie}
+          </div>
+        </Link>
+      );
+    })}
+  </div>
+</div>
 
       {/* Liste des annonces */}
       <div className="mt-10 px-4 space-y-6 max-w-2xl mx-auto">
@@ -180,7 +142,14 @@ export default function HomeClient({ annonces }: { annonces: FormattedAnnonce[] 
                 <div className="flex-1">
                   <h2 className="text-lg font-bold">{annonce.titre}</h2>
                   <p className="text-sm text-gray-600">
-                    📅 {annonce.date} • ⏱ {annonce.duree}
+                    📅{" "}
+                    {new Date(annonce.date).toLocaleDateString("fr-FR", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}{" "}
+                    • ⏱ {annonce.duree}
                   </p>
                   <p className="text-sm text-gray-500 mt-1">
                     👤 {annonce.utilisateur} • 📍 {annonce.localisation}

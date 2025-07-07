@@ -1,18 +1,32 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Publier() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Récupérer la catégorie depuis l'URL (ex: ?categorie=jardinage)
+  const categorieParam = searchParams.get("categorie") || "";
+
+  // Initialiser le state avec la catégorie passée en paramètre si elle existe
+  const [categorie, setCategorie] = useState(categorieParam);
+
   const [titre, setTitre] = useState("");
-  const [categorie, setCategorie] = useState("");
   const [duree, setDuree] = useState("");
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
   const [localisation, setLocalisation] = useState("");
   const [prix, setPrix] = useState("");
   const [image, setImage] = useState<string>("");
-  const router = useRouter();
+
+  // Si jamais le paramètre change (rare dans ce cas), mettre à jour le state catégorie
+  useEffect(() => {
+    if (categorieParam) {
+      setCategorie(categorieParam);
+    }
+  }, [categorieParam]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +39,7 @@ export default function Publier() {
     formData.append("description", description);
     formData.append("localisation", localisation);
     formData.append("prix", prix);
-    formData.append("image", image); // Dans un vrai projet, tu devrais gérer un vrai upload
+    formData.append("image", image);
 
     const res = await fetch("/api/annonces", {
       method: "POST",
@@ -46,7 +60,7 @@ export default function Publier() {
       <form className="space-y-4 max-w-xl mx-auto" onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Titre de l&apos;annonce"
+          placeholder="Titre de l'annonce"
           value={titre}
           onChange={(e) => setTitre(e.target.value)}
           className="w-full p-3 rounded-lg bg-white"
@@ -110,7 +124,7 @@ export default function Publier() {
           type="submit"
           className="bg-[#424242] text-white px-6 py-3 rounded-lg w-full"
         >
-          Publier l&apos;annonce
+          Publier l'annonce
         </button>
       </form>
     </main>
