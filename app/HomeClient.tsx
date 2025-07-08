@@ -1,6 +1,7 @@
 "use client";
 
 import Menu from "./Menu"; // adapte ce chemin si besoin
+import { User } from '@supabase/supabase-js';
 import { useEffect, useState } from "react";
 import { supabase } from "../src/lib/supabaseClient"; // adapte ce chemin si besoin
 import type { Session } from "@supabase/supabase-js";
@@ -22,7 +23,7 @@ interface FormattedAnnonce {
 }
 
 export default function HomeClient({ annonces }: { annonces: FormattedAnnonce[] }) {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

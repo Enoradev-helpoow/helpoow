@@ -1,16 +1,13 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function Publier() {
+function PublierInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Récupérer la catégorie depuis l'URL (ex: ?categorie=jardinage)
   const categorieParam = searchParams.get("categorie") || "";
-
-  // Initialiser le state avec la catégorie passée en paramètre si elle existe
   const [categorie, setCategorie] = useState(categorieParam);
 
   const [titre, setTitre] = useState("");
@@ -21,7 +18,6 @@ export default function Publier() {
   const [prix, setPrix] = useState("");
   const [image, setImage] = useState<string>("");
 
-  // Si jamais le paramètre change (rare dans ce cas), mettre à jour le state catégorie
   useEffect(() => {
     if (categorieParam) {
       setCategorie(categorieParam);
@@ -56,7 +52,6 @@ export default function Publier() {
   return (
     <main className="min-h-screen bg-[#FFC107] text-[#424242] font-righteous p-6">
       <h1 className="text-3xl mb-6 text-center">Publier une annonce</h1>
-
       <form className="space-y-4 max-w-xl mx-auto" onSubmit={handleSubmit}>
         <input
           type="text"
@@ -124,9 +119,17 @@ export default function Publier() {
           type="submit"
           className="bg-[#424242] text-white px-6 py-3 rounded-lg w-full"
         >
-          Publier l'annonce
+          Publier l&apos;annonce
         </button>
       </form>
     </main>
+  );
+}
+
+export default function PublierPage() {
+  return (
+    <Suspense>
+      <PublierInner />
+    </Suspense>
   );
 }

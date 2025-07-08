@@ -25,7 +25,7 @@ export default function Inscription() {
     setError('');
     setMessage('');
 
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
       options: {
