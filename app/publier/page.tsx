@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 
 function PublierInner() {
   const searchParams = useSearchParams();
@@ -27,6 +28,18 @@ function PublierInner() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Récupérer la session utilisateur Supabase
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      alert("Tu dois être connecté pour publier une annonce");
+      return;
+    }
+
+    const token = session.access_token;
+
     const formData = new FormData();
     formData.append("titre", titre);
     formData.append("categorie", categorie);
@@ -39,13 +52,17 @@ function PublierInner() {
 
     const res = await fetch("/api/annonces", {
       method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       body: formData,
     });
 
     if (res.ok) {
       router.push("/");
     } else {
-      alert("Erreur lors de la publication");
+      const errorData = await res.json();
+      alert("Erreur lors de la publication : " + (errorData.error || "Erreur inconnue"));
     }
   };
 
@@ -59,11 +76,13 @@ function PublierInner() {
           value={titre}
           onChange={(e) => setTitre(e.target.value)}
           className="w-full p-3 rounded-lg bg-white"
+          required
         />
         <select
           value={categorie}
           onChange={(e) => setCategorie(e.target.value)}
           className="w-full p-3 rounded-lg bg-white"
+          required
         >
           <option value="">Choisir une catégorie</option>
           <option>Électricité</option>
@@ -81,18 +100,21 @@ function PublierInner() {
           value={duree}
           onChange={(e) => setDuree(e.target.value)}
           className="w-full p-3 rounded-lg bg-white"
+          required
         />
         <input
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
           className="w-full p-3 rounded-lg bg-white"
+          required
         />
         <textarea
           placeholder="Description..."
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="w-full p-3 rounded-lg bg-white h-32"
+          required
         />
         <input
           type="text"
@@ -100,6 +122,7 @@ function PublierInner() {
           value={localisation}
           onChange={(e) => setLocalisation(e.target.value)}
           className="w-full p-3 rounded-lg bg-white"
+          required
         />
         <input
           type="number"
@@ -107,6 +130,9 @@ function PublierInner() {
           value={prix}
           onChange={(e) => setPrix(e.target.value)}
           className="w-full p-3 rounded-lg bg-white"
+          required
+          min={0}
+          step={0.01}
         />
         <input
           type="text"

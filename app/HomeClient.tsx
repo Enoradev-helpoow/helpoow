@@ -1,30 +1,27 @@
 "use client";
 
-import Menu from "./Menu"; // adapte ce chemin si besoin
-import { User } from '@supabase/supabase-js';
+import Menu from "./Menu";
+import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-import { supabase } from "../src/lib/supabaseClient"; // adapte ce chemin si besoin
+import { supabase } from "../src/lib/supabaseClient";
 import type { Session } from "@supabase/supabase-js";
 import Link from "next/link";
 import Image from "next/image";
 
-interface FormattedAnnonce {
-  id: number;
-  titre: string;
-  description: string;
-  date: string; // 👈 Date au format string
-  duree: string;
-  utilisateur: string;
-  image: string;
-  prix: number;
-  localisation: string;
-  categorie: string;
-  createdAt: string; // 👈 Date au format string
+import { FormattedAnnonce } from "../src/types/annonce";
+
+
+interface HomeClientProps {
+  annonces: FormattedAnnonce[];
 }
 
-export default function HomeClient({ annonces }: { annonces: FormattedAnnonce[] }) {
+export default function HomeClient({ annonces }: HomeClientProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // On supprime la gestion locale des annonces et du chargement
+  // const [annonces, setAnnonces] = useState<FormattedAnnonce[]>([]);
+  // const [loadingAnnonces, setLoadingAnnonces] = useState(true);
 
   useEffect(() => {
     const getUser = async () => {
@@ -48,18 +45,13 @@ export default function HomeClient({ annonces }: { annonces: FormattedAnnonce[] 
     };
   }, []);
 
+  // On ne fait plus le fetch ici car les annonces sont passées en props
+
   return (
     <main className="min-h-screen bg-[#FFC107] text-[#424242] font-righteous">
       <header className="flex justify-between items-center p-4 relative">
-        {/* Remplacement de l'icône menu par le composant Menu */}
         <Menu />
-
-        {/* Titre centré */}
-        <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl">
-          Helpoow
-        </h1>
-
-        {/* Icônes de droite + Connexion */}
+        <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl">Helpoow</h1>
         <div className="flex items-center space-x-4 text-2xl">
           {!loading ? (
             user ? (
@@ -73,11 +65,12 @@ export default function HomeClient({ annonces }: { annonces: FormattedAnnonce[] 
             )
           ) : null}
           <span>👤</span>
-          <span>💬</span>
+          <Link href="/messages">
+            <span className="cursor-pointer hover:underline">💬</span>
+          </Link>
         </div>
       </header>
 
-      {/* Barre de recherche */}
       <div className="flex justify-center mt-6 px-4">
         <div className="flex items-center w-full max-w-md bg-white rounded-full shadow px-4 py-2">
           <span className="text-xl mr-2">🔍</span>
@@ -89,41 +82,40 @@ export default function HomeClient({ annonces }: { annonces: FormattedAnnonce[] 
         </div>
       </div>
 
-{/* Catégories */}
-<div className="overflow-x-auto mt-6 px-4">
-  <div className="flex space-x-4 w-max">
-    {[
-      "Électricité",
-      "Plomberie",
-      "Animaux",
-      "Jardinage",
-      "Nettoyage",
-      "Rangement",
-      "Vide Maison",
-      "Charges lourdes",
-      "Travaux d’extérieur",
-      "Travaux d’intérieur",
-      "Cours particuliers",
-      "Meubles",
-      "Livraisons",
-      "Déménagement",
-    ].map((categorie, index) => {
-      const slug = categorie
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
+      <div className="overflow-x-auto mt-6 px-4">
+        <div className="flex space-x-4 w-max">
+          {[
+            "Électricité",
+            "Plomberie",
+            "Animaux",
+            "Jardinage",
+            "Nettoyage",
+            "Rangement",
+            "Vide Maison",
+            "Charges lourdes",
+            "Travaux d’extérieur",
+            "Travaux d’intérieur",
+            "Cours particuliers",
+            "Meubles",
+            "Livraisons",
+            "Déménagement",
+          ].map((categorie, index) => {
+            const slug = categorie
+              .toLowerCase()
+              .replace(/\s+/g, "-")
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "");
 
-      return (
-        <Link key={index} href={`/categories/${slug}`}>
-          <div className="min-w-[160px] min-h-[60px] bg-[#424242] text-white flex items-center justify-center text-center p-4 rounded-2xl font-righteous shadow hover:bg-[#333] transition cursor-pointer">
-            {categorie}
-          </div>
-        </Link>
-      );
-    })}
-  </div>
-</div>
+            return (
+              <Link key={index} href={`/categories/${slug}`}>
+                <div className="min-w-[160px] min-h-[60px] bg-[#424242] text-white flex items-center justify-center text-center p-4 rounded-2xl font-righteous shadow hover:bg-[#333] transition cursor-pointer">
+                  {categorie}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Liste des annonces */}
       <div className="mt-10 px-4 space-y-6 max-w-2xl mx-auto">
@@ -165,7 +157,6 @@ export default function HomeClient({ annonces }: { annonces: FormattedAnnonce[] 
         )}
       </div>
 
-      {/* Bouton publier */}
       <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
         <Link href="/publier">
           <button className="bg-green-600 text-white text-lg px-6 py-3 rounded-full shadow-lg hover:bg-green-700 transition">

@@ -8,15 +8,24 @@ datasource db {
 }
 
 model Annonce {
-  id           Int      @id @default(autoincrement())
-  titre        String
-  description  String
-  date         DateTime
-  duree        String
-  utilisateur  String
-  image        String
-  prix         Int
-  localisation String
-  categorie    String
-  createdAt    DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  titre          String
+  description    String
+  date           DateTime
+  duree          String
+  image          String
+  prix           Int
+  localisation   String
+  categorie      String
+  createdAt      DateTime @default(now())
+
+  utilisateurId  String
+  utilisateur    User     @relation(fields: [utilisateurId], references: [id])
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  annonces      Annonce[] // 👈 Relation vers toutes les annonces créées
+  createdAt     DateTime  @default(now())
 }

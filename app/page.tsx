@@ -1,13 +1,8 @@
 export const runtime = "nodejs";
 
 import { prisma } from "../src/lib/prisma";
-import { Annonce } from '@prisma/client';
 import HomeClient from "./HomeClient";
-
-interface FormattedAnnonce extends Omit<Annonce, 'date' | 'createdAt'> {
-  date: string;
-  createdAt: string;
-}
+import { FormattedAnnonce } from "../src/types/annonce";
 
 export default async function HomePage() {
   if (!process.env.DATABASE_URL) {
@@ -15,14 +10,18 @@ export default async function HomePage() {
     return <div>Erreur de configuration</div>;
   }
 
-  const annonces: Annonce[] = await prisma.annonce.findMany({
+  const annonces = await prisma.annonce.findMany({
     orderBy: { createdAt: "desc" },
+    include: {
+      utilisateur: true,
+    },
   });
 
-  const formattedAnnonces: FormattedAnnonce[] = annonces.map((annonce: Annonce) => ({
+  const formattedAnnonces: FormattedAnnonce[] = annonces.map((annonce) => ({
     ...annonce,
     date: annonce.date.toISOString(),
-    createdAt: annonce.createdAt.toISOString()
+    createdAt: annonce.createdAt.toISOString(),
+    utilisateur: annonce.utilisateur.email, // ou prenom si disponible
   }));
 
   return <HomeClient annonces={formattedAnnonces} />;
